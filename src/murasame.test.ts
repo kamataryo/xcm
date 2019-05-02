@@ -25,7 +25,7 @@ test("register a nested command", t => {
   t.true(isCalled);
 });
 
-test("register a nested command with option", t => {
+test("register a nested command with params", t => {
   let isCalled = false;
 
   const rootMurasameNode = new MurasameNode("#root", "root description");
@@ -37,5 +37,26 @@ test("register a nested command with option", t => {
       }
     });
   rootMurasameNode.exec("hello", "world", "-y", "--key=value");
+  t.true(isCalled);
+});
+
+test("register a command with default params", t => {
+  let isCalled = false;
+
+  const rootMurasameNode = new MurasameNode("#root", "root description");
+  rootMurasameNode.registerChildNode<{ y: boolean; key: string }>(
+    "hello",
+    {
+      description: "",
+      defaultParams: { y: true, key: "value" }
+    },
+    params => {
+      if (params.y === true && params.key === "value") {
+        isCalled = true;
+      }
+    }
+  );
+
+  rootMurasameNode.exec("hello");
   t.true(isCalled);
 });

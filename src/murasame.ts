@@ -11,24 +11,32 @@ export default class MurasameNode<Params> {
 
   phrase: string;
   private description?: string;
+  private defaultParams?: any;
   private executor?: MurasameExecutor<Params>;
   private childNodes: MurasameNode<any>[] = [];
   constructor(
     phrase: string,
-    description?: string,
+    options: string | { description?: string; defaultParams?: any } = {},
     executor?: MurasameExecutor<Params>
   ) {
     this.phrase = phrase;
-    this.description = description;
     this.executor = executor;
+
+    if (typeof options === "string") {
+      this.description = options;
+      this.defaultParams = {};
+    } else {
+      this.description = options.description || "";
+      this.defaultParams = options.defaultParams || {};
+    }
   }
 
   registerChildNode<ChildParams>(
     phrase: string,
-    description?: string,
-    exec?: MurasameExecutor<ChildParams>
+    options: string | { description?: string; defaultParams?: any } = {},
+    executor?: MurasameExecutor<ChildParams>
   ): MurasameNode<ChildParams> {
-    const node = new MurasameNode<ChildParams>(phrase, description, exec);
+    const node = new MurasameNode<ChildParams>(phrase, options, executor);
     this.childNodes.push(node);
     return node;
   }
@@ -63,7 +71,11 @@ export default class MurasameNode<Params> {
         }
       }
     }
-    currentNode.executor(params, traversedPhrases);
+
+    currentNode.executor(
+      { ...currentNode.defaultParams, ...params },
+      traversedPhrases
+    );
     return true;
   }
 }
