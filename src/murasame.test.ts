@@ -154,3 +154,11 @@ test("write help", t => {
 
   t.true(true);
 });
+
+test("async", t =>
+  new Murasame.default("#root")
+    .sub("async")
+    .action(() => new Promise(resolve => setTimeout(resolve, 50)))
+    .super()
+    .execAsync("async")
+    .then(result => t.true(result)));

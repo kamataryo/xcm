@@ -20,7 +20,7 @@ export type MurasameExecutor<T> = (
   params: T,
   helps: MurasameHelp,
   phrases?: string[]
-) => void;
+) => any;
 
 export default class MurasameNode<Params> {
   static isOption = (phrase: string) => {
@@ -145,6 +145,10 @@ export default class MurasameNode<Params> {
       traversedPhrases
     );
     return true;
+  }
+
+  async execAsync(...phrases: string[]) {
+    return this.exec(...phrases);
   }
 }
 
