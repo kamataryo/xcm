@@ -55,12 +55,12 @@ command.exec(...args)
 ```
 
 ```shell
-$ cli.js init                   # init!
-$ cli.js init wow               # wow!
-$ cli.js opt                    # { hello: "world" }
-$ cli.js opt -y --hello=Node.js # { y: true, hello: "Node.js" }
-$ cli.js a b c d e              # abcde!
-$ cli.js A B C D E              # ABCDE!
+$ cli.js init                     # init!
+$ cli.js init wow                 # wow!
+$ cli.js opt                      # { hello: "world" }
+$ cli.js opt -y --hello="Node.js" # { y: true, hello: "Node.js" }
+$ cli.js a b c d e                # abcde!
+$ cli.js A B C D E                # ABCDE!
 ```
 
 ## Development

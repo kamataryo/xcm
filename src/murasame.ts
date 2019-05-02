@@ -1,3 +1,5 @@
+import * as shlex from "shlex";
+
 type MurasameParams = {
   [key: string]: {
     isRequired: boolean;
@@ -79,7 +81,9 @@ export default class MurasameNode<Params> {
       if (yesNoMatch) {
         params[yesNoMatch.groups.key] = true;
       } else if (keyValueMatch) {
-        params[keyValueMatch.groups.key] = keyValueMatch.groups.value;
+        params[keyValueMatch.groups.key] = shlex.split(
+          keyValueMatch.groups.value
+        )[0];
       } else {
         const nextNode = currentNode.findChildNode(phrase);
         if (nextNode) {

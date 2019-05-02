@@ -84,3 +84,35 @@ test("register a command with default params", t => {
   command.exec("hello");
   t.true(isCalled);
 });
+
+test("Quoted param", t => {
+  let isCalled = false;
+
+  new Murasame("#root")
+    .sub<{ key: string }>("hello")
+    .param("key", false, "value")
+    .action(params => {
+      if (params.key === "value") {
+        isCalled = true;
+      }
+    })
+    .super()
+    .exec("hello", '--key="value"');
+  t.true(isCalled);
+});
+
+test("Single quoted param", t => {
+  let isCalled = false;
+
+  new Murasame("#root")
+    .sub<{ key: string }>("hello")
+    .param("key", false, "value")
+    .action(params => {
+      if (params.key === "value") {
+        isCalled = true;
+      }
+    })
+    .super()
+    .exec("hello", "--key='value'");
+  t.true(isCalled);
+});
