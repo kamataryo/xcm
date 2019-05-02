@@ -152,6 +152,16 @@ export default class MurasameNode<Params> {
   async execAsync(...phrases: string[]) {
     return this.exec(...phrases);
   }
+
+  parse() {
+    const [, , ...args] = process.argv;
+    return this.exec(...args);
+  }
+
+  parseAsync() {
+    const [, , ...args] = process.argv;
+    return this.execAsync(...args);
+  }
 }
 
 const murasameHelpWriter = (_0: any, help: MurasameHelp) => {

@@ -54,8 +54,7 @@ command
   .help()
 
 // Go!
-const [, , ...args] = process.argv;
-command.exec(...args)
+command.parse()
 ```
 
 ```shell
