@@ -62,8 +62,8 @@ test("register a nested command with params", t => {
     .sub("hello")
     .sub<{ y: boolean; key: string }>("world")
     .describe("hello world command")
-    .param("y", true, "", true)
-    .param("key", false, "", "value")
+    .param("y", { isRequired: true, description: "", default: true })
+    .param("key", { isRequired: false, description: "", default: "value" })
     .action(params => {
       if (params.y === true && params.key === "value") {
         isCalled = true;
@@ -81,8 +81,8 @@ test("register a command with default params", t => {
 
   new Murasame.default("#root")
     .sub<{ y: boolean; key: string }>("hello")
-    .param("y", false, "", true)
-    .param("key", false, "", "value")
+    .param("y", { isRequired: false, description: "", default: true })
+    .param("key", { isRequired: false, description: "", default: "value" })
     .action(params => {
       if (params.y === true && params.key === "value") {
         isCalled = true;
@@ -99,7 +99,7 @@ test("Quoted param", t => {
 
   new Murasame.default("#root")
     .sub<{ key: string }>("hello")
-    .param("key", false, "", "value")
+    .param("key", { isRequired: false, description: "", default: "value" })
     .action(params => {
       if (params.key === "value") {
         isCalled = true;
@@ -116,7 +116,7 @@ test("Single quoted param", t => {
 
   new Murasame.default("#root")
     .sub<{ key: string }>("hello")
-    .param("key", false, "", "value")
+    .param("key", { isRequired: false, description: "", default: "value" })
     .action(params => {
       if (params.key === "value") {
         isCalled = true;
@@ -134,7 +134,7 @@ test("should get help", t => {
   new Murasame.default("#root")
     .sub<{ key: string }>("hello")
     .describe("This is description for hello subcommand")
-    .param("key", false, "", "value")
+    .param("key", { isRequired: false, description: "", default: "value" })
     .action((_0, actualHelp) => (help = actualHelp))
     .super()
     .exec("hello", "--key='value'");
@@ -145,7 +145,11 @@ test("should get help", t => {
 test("write help", t => {
   new Murasame.default("#root")
     .describe("desribe help for root")
-    .param("a", false, "parameter A.", "default-value-for-a")
+    .param("a", {
+      isRequired: false,
+      description: "parameter A.",
+      default: "default-value-for-a"
+    })
     .sub("help")
     .help()
     .describe("display help")

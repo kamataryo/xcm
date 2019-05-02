@@ -47,16 +47,19 @@ export default class MurasameNode<Params> {
 
   param(
     key: string,
-    isRequired: boolean = false,
-    description: string = "",
-    defaultValue?: boolean | string
+    options: {
+      isRequired?: boolean;
+      description?: string;
+      default?: boolean | string;
+    } = {}
   ) {
     this.params = {
       ...this.params,
       [key]: {
-        isRequired,
-        description,
-        default: key.length === 1 ? !!defaultValue : defaultValue.toString()
+        isRequired: options.isRequired || false,
+        description: options.description || "",
+        default:
+          key.length === 1 ? !!options.default : options.default.toString()
       }
     };
     return this;
