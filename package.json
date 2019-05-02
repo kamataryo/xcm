@@ -1,0 +1,25 @@
+{
+  "name": "murasame",
+  "version": "0.0.0",
+  "description": "Simple and light weight cli buider.",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "private": false,
+  "repository": "git@github.com:kamataryo/murasame.git",
+  "author": "kamataryo <mugil.cephalus+github.com@gmail.com>",
+  "scripts": {
+    "lint": "eslint --cache src/**/*",
+    "format": "prettier src/* --write",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^11.13.8",
+    "@typescript-eslint/eslint-plugin": "^1.7.0",
+    "@typescript-eslint/parser": "^1.7.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.2.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "prettier": "^1.17.0",
+    "typescript": "^3.4.5"
+  }
+}
