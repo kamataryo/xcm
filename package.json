@@ -1,8 +1,14 @@
 {
   "name": "murasame",
-  "version": "0.0.2-beta.0",
+  "version": "0.0.3-beta.0",
   "description": "A Node.js CLI tool builder.",
-  "keywords": ["cli", "nest", "command", "shell", "bin"],
+  "keywords": [
+    "cli",
+    "nest",
+    "command",
+    "shell",
+    "bin"
+  ],
   "main": "dist/index.js",
   "license": "MIT",
   "private": false,
