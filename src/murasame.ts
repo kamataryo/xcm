@@ -24,10 +24,8 @@ export type MurasameExecutor<T> = (
 
 export default class MurasameNode<Params> {
   static isOption = (phrase: string) => {
-    const yesNoMatch = phrase.match(/^-(?<key>[a-z,A-Z,0-9])+$/);
-    const keyValueMatch = phrase.match(
-      /^--(?<key>[a-z,A-Z][a-z,A-Z,0-9]+)(=(?<value>.+))?$/
-    );
+    const yesNoMatch = phrase.match(/^-([a-z,A-Z,0-9])+$/);
+    const keyValueMatch = phrase.match(/^--([a-z,A-Z][a-z,A-Z,0-9]+)=(.+)$/);
     return { yesNoMatch, keyValueMatch };
   };
 
@@ -109,12 +107,10 @@ export default class MurasameNode<Params> {
     for (let phrase of phrases) {
       const { yesNoMatch, keyValueMatch } = MurasameNode.isOption(phrase);
       if (yesNoMatch) {
-        params[yesNoMatch.groups.key] = true;
+        params[yesNoMatch[1]] = true;
       } else if (keyValueMatch) {
         // solve quoted params like --url="https://example.com"
-        params[keyValueMatch.groups.key] = shlex.split(
-          keyValueMatch.groups.value
-        )[0];
+        params[keyValueMatch[1]] = shlex.split(keyValueMatch[2])[0];
       } else {
         const nextNode = currentNode.findChildNode(phrase);
         if (nextNode) {

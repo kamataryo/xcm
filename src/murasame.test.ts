@@ -142,7 +142,7 @@ test("should get help", t => {
   t.is(help.sub[0].phrase, "hello");
 });
 
-test("write help", () => {
+test("write help", t => {
   new Murasame.default("#root")
     .describe("desribe help for root")
     .param("a", false, "parameter A.", "default-value-for-a")
@@ -151,4 +151,6 @@ test("write help", () => {
     .describe("display help")
     .super()
     .exec("help");
+
+  t.true(true);
 });
