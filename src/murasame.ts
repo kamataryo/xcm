@@ -6,6 +6,7 @@ export type MurasameParams = {
     isRequired: boolean;
     description: string;
     default: string | boolean;
+    type: string;
   };
 };
 
@@ -46,21 +47,31 @@ export default class MurasameNode<Params> {
   }
 
   param(
-    key: string,
+    key: string | string[],
     options: {
       isRequired?: boolean;
       description?: string;
       default?: boolean | string;
     } = {}
   ) {
+    const keys = Array.isArray(key) ? key : [key];
+    const additionalParams = keys.reduce(
+      (prev, key) => ({
+        ...prev,
+        [key]: {
+          isRequired: options.isRequired || false,
+          description: options.description || "",
+          default:
+            key.length === 1 ? !!options.default : options.default.toString(),
+          type: keys[0]
+        }
+      }),
+      {}
+    );
+
     this.params = {
       ...this.params,
-      [key]: {
-        isRequired: options.isRequired || false,
-        description: options.description || "",
-        default:
-          key.length === 1 ? !!options.default : options.default.toString()
-      }
+      ...additionalParams
     };
     return this;
   }
@@ -167,19 +178,46 @@ export default class MurasameNode<Params> {
   }
 }
 
-const murasameHelpWriter = (_0: any, help: MurasameHelp) => {
-  const { phrase, description, params, sub } = help;
+const murasameHelpWriter = (
+  _0: any,
+  help: MurasameHelp,
+  traversedPhrases: string[]
+) => {
+  const { description, params, sub } = help;
 
-  const helpText = `Usage: ${phrase} [subcommand]
+  const parentalPhrases = traversedPhrases.splice(
+    0,
+    traversedPhrases.length - 1
+  );
 
-${description}
+  const options =
+    Object.keys(params).length > 0
+      ? `Options:
+${table(
+  Object.keys(params).map(key => {
+    const displayOption = key.length > 1 ? `--${key}` : `-${key}`;
+    const defaultValue = params[key].default ? `[${params[key].default}]` : "";
+    return ["    ", displayOption, defaultValue, params[key].description];
+  })
+)}`
+      : "";
 
-Options:
-${table(Object.keys(params).map(key => [key, params[key].description]))}
+  const commands =
+    sub.length > 0
+      ? `Commands:
+${table(sub.map(({ phrase, description }) => ["    ", phrase, description]))}`
+      : "";
 
-Commands:
-${table(sub.map(({ phrase, description }) => [phrase, description]))}
-`;
-
-  process.stdout.write(helpText);
+  process.stdout.write(
+    [
+      `Usage: ${parentalPhrases.join(" ")} [command] [options]`,
+      "",
+      description,
+      "",
+      options,
+      ``,
+      commands,
+      ""
+    ].join("\n")
+  );
 };

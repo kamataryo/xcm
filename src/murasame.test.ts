@@ -148,11 +148,19 @@ test("write help", t => {
     .param("a", {
       isRequired: false,
       description: "parameter A.",
-      default: "default-value-for-a"
+      default: false
+    })
+    .param("abc", {
+      isRequired: false,
+      description: "parameter ABC.",
+      default: "default-value-for-ABC"
     })
     .sub("help")
     .help()
     .describe("display help")
+    .super()
+    .sub("sub-a")
+    .describe("sub A.")
     .super()
     .exec("help");
 
