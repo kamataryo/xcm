@@ -139,11 +139,13 @@ export default class MurasameNode<Params> {
       }
     }
 
-    currentNode.executor(
-      { ...defaultParams, ...params },
-      this.getHelps(),
-      traversedPhrases
-    );
+    typeof currentNode.executor === "function" &&
+      currentNode.executor(
+        { ...defaultParams, ...params },
+        this.getHelps(),
+        traversedPhrases
+      );
+
     return true;
   }
 

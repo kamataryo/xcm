@@ -162,3 +162,12 @@ test("async", t =>
     .super()
     .execAsync("async")
     .then(result => t.true(result)));
+
+test("no executables", t => {
+  new Murasame.default("#root")
+    .sub("no-exec")
+    .super()
+    .exec("no-exec");
+
+  t.true(true);
+});
