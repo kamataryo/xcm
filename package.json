@@ -1,7 +1,7 @@
 {
   "name": "murasame",
   "version": "0.0.0",
-  "description": "Simple and light weight cli buider.",
+  "description": "A Simple nested Node.js CLI tool buider.",
   "main": "dist/index.js",
   "license": "MIT",
   "private": false,
