@@ -15,19 +15,43 @@ $ npm install murasame --save
 ```JavaScript
 #!/usr/bin/env node
 
-import MurasameNode from 'murasame'
+// cli.js
+import Murasame from 'murasame'
 
-const rootNode = new MurasameNode('murasame');
-const subNode1 = rootNode.registerChildNode('init', () => console.log('init!'));
-const subsubNode = subNode1.registerChildNode('wow', () => console.log('wow!'));
-const subNode2 = rootNode.registerChildNode(
-  'opt',
-  { defaultParams: { hello: "world" } },
-  params => console.log(params),
-);
+const command = new Murasame('murasame');
+command
+  .sub('init')
+  .action(() => console.log('init!'))
+    .sub('wow')
+    .action(() => console.log('wow!'))
 
+command
+  .sub('opt')
+  .param('hello', true, 'world')
+  .action(params => console.log(params))
+
+command
+  .sub('a')
+    .sub('b')
+      .sub('c')
+        .sub('d')
+          .sub('e')
+          .action(() => console.log('abcde!'))
+          .suprer()
+        .super()
+      .super()
+    .super()
+  .super()
+  .sub('A')
+    .sub('B')
+      .sub('C')
+        .sub('D')
+          .sub('E')
+          .action(() => console.log('ABCDE!'))
+
+// Go!
 const [, , ...args] = process.argv;
-rootNode.exec(...args)
+command.exec(...args)
 ```
 
 ```shell
@@ -35,6 +59,8 @@ $ cli.js init                   # init!
 $ cli.js init wow               # wow!
 $ cli.js opt                    # { hello: "world" }
 $ cli.js opt -y --hello=Node.js # { y: true, hello: "Node.js" }
+$ cli.js a b c d e              # abcde!
+$ cli.js A B C D E              # ABCDE!
 ```
 
 ## Development

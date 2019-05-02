@@ -1,5 +1,10 @@
+type MurasameParams = {
+  [key: string]: {
+    isRequired: boolean;
+    default: string | boolean;
+  };
+};
 type MurasameExecutor<T> = (params: T, phrases?: string[]) => void;
-type MuramasaOption = string | { description?: string; defaultParams?: any };
 
 export default class MurasameNode<Params> {
   static isOption = (phrase: string) => {
@@ -10,40 +15,50 @@ export default class MurasameNode<Params> {
     return { yesNoMatch, keyValueMatch };
   };
 
-  phrase: string;
+  private phrase: string;
   private description?: string;
-  private defaultParams?: any;
+  private params: MurasameParams = {}; // parameter definitions
   private executor?: MurasameExecutor<Params>;
   private childNodes: MurasameNode<any>[] = [];
-  constructor(
-    phrase: string,
-    arg1?: MuramasaOption | MurasameExecutor<Params>,
-    arg2?: MurasameExecutor<Params>
-  ) {
+  private parent: MurasameNode<any>;
+  constructor(phrase: string, parent?: MurasameNode<any>) {
     this.phrase = phrase;
-
-    if (typeof arg1 === "function") {
-      this.executor = arg1;
-    } else {
-      this.executor = arg2;
-      if (typeof arg2 === "string") {
-        this.description = arg2;
-        this.defaultParams = {};
-      } else if (typeof arg1 === "object") {
-        this.description = arg1.description || "";
-        this.defaultParams = arg1.defaultParams || {};
-      }
-    }
+    this.parent = parent || this;
   }
 
-  registerChildNode<ChildParams>(
-    phrase: string,
-    arg1?: MuramasaOption | MurasameExecutor<ChildParams>,
-    arg2?: MurasameExecutor<ChildParams>
-  ): MurasameNode<ChildParams> {
-    const node = new MurasameNode<ChildParams>(phrase, arg1, arg2);
+  describe(description: string) {
+    this.description = description;
+    return this;
+  }
+
+  param(
+    key: string,
+    isRequired: boolean = false,
+    defaultValue?: boolean | string
+  ) {
+    this.params = {
+      ...this.params,
+      [key]: {
+        isRequired,
+        default: key.length === 1 ? !!defaultValue : defaultValue.toString()
+      }
+    };
+    return this;
+  }
+
+  action(action: MurasameExecutor<Params>) {
+    this.executor = action;
+    return this;
+  }
+
+  sub<ChildParams>(phrase: string): MurasameNode<ChildParams> {
+    const node = new MurasameNode<ChildParams>(phrase, this);
     this.childNodes.push(node);
     return node;
+  }
+
+  super() {
+    return this.parent;
   }
 
   private findChildNode(phrase: string): MurasameNode<any> | false {
@@ -77,10 +92,23 @@ export default class MurasameNode<Params> {
       }
     }
 
-    currentNode.executor(
-      { ...currentNode.defaultParams, ...params },
-      traversedPhrases
+    const defaultParams = Object.keys(currentNode.params).reduce(
+      (prev, key) => {
+        return { ...prev, [key]: currentNode.params[key].default };
+      },
+      {}
     );
+
+    // check params type
+    for (let key of Object.keys(currentNode.params)) {
+      const { isRequired } = currentNode.params[key];
+      if (isRequired && params[key] === void 0) {
+        process.stderr.write(`${key} is required, but not given.`);
+        return false;
+      }
+    }
+
+    currentNode.executor({ ...defaultParams, ...params }, traversedPhrases);
     return true;
   }
 }
