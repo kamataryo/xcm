@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@types/node": "^11.13.8",
+    "@types/text-table": "^0.2.1",
     "@typescript-eslint/eslint-plugin": "^1.7.0",
     "@typescript-eslint/parser": "^1.7.0",
     "ava": "^1.4.1",
@@ -25,6 +26,7 @@
     "typescript": "^3.4.5"
   },
   "dependencies": {
-    "shlex": "^2.0.1"
+    "shlex": "^2.0.1",
+    "text-table": "^0.2.0"
   }
 }

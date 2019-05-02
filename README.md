@@ -49,6 +49,10 @@ command
           .sub('E')
           .action(() => console.log('ABCDE!'))
 
+command
+  .sub('help')
+  .help()
+
 // Go!
 const [, , ...args] = process.argv;
 command.exec(...args)
@@ -61,6 +65,7 @@ $ cli.js opt                      # { hello: "world" }
 $ cli.js opt -y --hello="Node.js" # { y: true, hello: "Node.js" }
 $ cli.js a b c d e                # abcde!
 $ cli.js A B C D E                # ABCDE!
+$ cli.js help                     # <show help>
 ```
 
 ## Development

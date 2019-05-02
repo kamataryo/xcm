@@ -1,96 +1,105 @@
 import test from "ava";
-import Murasame from "./murasame";
+import * as Murasame from "./murasame";
 
 test("register a command", t => {
   let isCalled = false;
 
-  const command = new Murasame("#root");
-  command.sub("hello").action(() => (isCalled = true));
-  command.exec("hello");
+  new Murasame.default("#root")
+    .sub("hello")
+    .action(() => (isCalled = true))
+    .super()
+    .exec("hello");
+
   t.true(isCalled);
 });
 
 test("get parent command", t => {
   let isCalled = false;
 
-  const command = new Murasame("#root");
-
-  command
+  new Murasame.default("#root")
     .sub("hello")
     .sub("JavaScript")
     .super()
     .sub("Ruby")
-    .action(() => (isCalled = true));
+    .action(() => (isCalled = true))
+    .super()
+    .super()
+    .exec("hello", "Ruby");
 
-  command.exec("hello", "Ruby");
   t.true(isCalled);
 });
 
 test("register a command with description", t => {
   let isCalled = false;
 
-  const command = new Murasame("#root");
-  command.sub("hello").action(() => (isCalled = true));
-  command.exec("hello");
+  new Murasame.default("#root")
+    .sub("hello")
+    .action(() => (isCalled = true))
+    .super()
+    .exec("hello");
+
   t.true(isCalled);
 });
 
 test("register a nested command", t => {
   let isCalled = false;
 
-  const command = new Murasame("#root");
-  command
+  new Murasame.default("#root")
     .sub("hello")
     .sub("world")
-    .action(() => (isCalled = true));
-  command.exec("hello", "world");
+    .action(() => (isCalled = true))
+    .super()
+    .super()
+    .exec("hello", "world");
+
   t.true(isCalled);
 });
 
 test("register a nested command with params", t => {
   let isCalled = false;
 
-  const command = new Murasame("#root");
-  command
+  new Murasame.default("#root")
     .sub("hello")
     .sub<{ y: boolean; key: string }>("world")
     .describe("hello world command")
-    .param("y", true, true)
-    .param("key", false, "value")
+    .param("y", true, "", true)
+    .param("key", false, "", "value")
     .action(params => {
       if (params.y === true && params.key === "value") {
         isCalled = true;
       }
-    });
+    })
+    .super()
+    .super()
+    .exec("hello", "world", "-y", "--key=value");
 
-  command.exec("hello", "world", "-y", "--key=value");
   t.true(isCalled);
 });
 
 test("register a command with default params", t => {
   let isCalled = false;
 
-  const command = new Murasame("#root");
-  command
+  new Murasame.default("#root")
     .sub<{ y: boolean; key: string }>("hello")
-    .param("y", false, true)
-    .param("key", false, "value")
+    .param("y", false, "", true)
+    .param("key", false, "", "value")
     .action(params => {
       if (params.y === true && params.key === "value") {
         isCalled = true;
       }
-    });
+    })
+    .super()
+    .exec("hello");
 
-  command.exec("hello");
   t.true(isCalled);
 });
 
 test("Quoted param", t => {
   let isCalled = false;
 
-  new Murasame("#root")
+  new Murasame.default("#root")
     .sub<{ key: string }>("hello")
-    .param("key", false, "value")
+    .param("key", false, "", "value")
     .action(params => {
       if (params.key === "value") {
         isCalled = true;
@@ -98,15 +107,16 @@ test("Quoted param", t => {
     })
     .super()
     .exec("hello", '--key="value"');
+
   t.true(isCalled);
 });
 
 test("Single quoted param", t => {
   let isCalled = false;
 
-  new Murasame("#root")
+  new Murasame.default("#root")
     .sub<{ key: string }>("hello")
-    .param("key", false, "value")
+    .param("key", false, "", "value")
     .action(params => {
       if (params.key === "value") {
         isCalled = true;
@@ -114,5 +124,31 @@ test("Single quoted param", t => {
     })
     .super()
     .exec("hello", "--key='value'");
+
   t.true(isCalled);
+});
+
+test("should get help", t => {
+  let help: Murasame.MurasameHelp;
+
+  new Murasame.default("#root")
+    .sub<{ key: string }>("hello")
+    .describe("This is description for hello subcommand")
+    .param("key", false, "", "value")
+    .action((_0, actualHelp) => (help = actualHelp))
+    .super()
+    .exec("hello", "--key='value'");
+
+  t.is(help.sub[0].phrase, "hello");
+});
+
+test("write help", () => {
+  new Murasame.default("#root")
+    .describe("desribe help for root")
+    .param("a", false, "parameter A.", "default-value-for-a")
+    .sub("help")
+    .help()
+    .describe("display help")
+    .super()
+    .exec("help");
 });

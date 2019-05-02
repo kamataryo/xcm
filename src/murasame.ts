@@ -1,12 +1,26 @@
 import * as shlex from "shlex";
+import * as table from "text-table";
 
-type MurasameParams = {
+export type MurasameParams = {
   [key: string]: {
     isRequired: boolean;
+    description: string;
     default: string | boolean;
   };
 };
-type MurasameExecutor<T> = (params: T, phrases?: string[]) => void;
+
+export type MurasameHelp = {
+  phrase: string;
+  description?: string;
+  params: MurasameParams;
+  sub: MurasameHelp[];
+};
+
+export type MurasameExecutor<T> = (
+  params: T,
+  helps: MurasameHelp,
+  phrases?: string[]
+) => void;
 
 export default class MurasameNode<Params> {
   static isOption = (phrase: string) => {
@@ -36,12 +50,14 @@ export default class MurasameNode<Params> {
   param(
     key: string,
     isRequired: boolean = false,
+    description: string = "",
     defaultValue?: boolean | string
   ) {
     this.params = {
       ...this.params,
       [key]: {
         isRequired,
+        description,
         default: key.length === 1 ? !!defaultValue : defaultValue.toString()
       }
     };
@@ -50,6 +66,11 @@ export default class MurasameNode<Params> {
 
   action(action: MurasameExecutor<Params>) {
     this.executor = action;
+    return this;
+  }
+
+  help() {
+    this.executor = murasameHelpWriter;
     return this;
   }
 
@@ -72,6 +93,15 @@ export default class MurasameNode<Params> {
     return false;
   }
 
+  private getHelps(): any {
+    return {
+      phrase: this.phrase,
+      description: this.description || "",
+      params: this.params,
+      sub: this.childNodes.map(node => node.getHelps())
+    };
+  }
+
   exec(...phrases: string[]): boolean {
     const params: any = {};
     const traversedPhrases = [this.phrase];
@@ -81,6 +111,7 @@ export default class MurasameNode<Params> {
       if (yesNoMatch) {
         params[yesNoMatch.groups.key] = true;
       } else if (keyValueMatch) {
+        // solve quoted params like --url="https://example.com"
         params[keyValueMatch.groups.key] = shlex.split(
           keyValueMatch.groups.value
         )[0];
@@ -112,7 +143,28 @@ export default class MurasameNode<Params> {
       }
     }
 
-    currentNode.executor({ ...defaultParams, ...params }, traversedPhrases);
+    currentNode.executor(
+      { ...defaultParams, ...params },
+      this.getHelps(),
+      traversedPhrases
+    );
     return true;
   }
 }
+
+const murasameHelpWriter = (_0: any, help: MurasameHelp) => {
+  const { phrase, description, params, sub } = help;
+
+  const helpText = `Usage: ${phrase} [subcommand]
+
+${description}
+
+Options:
+${table(Object.keys(params).map(key => [key, params[key].description]))}
+
+Commands:
+${table(sub.map(({ phrase, description }) => [phrase, description]))}
+`;
+
+  process.stdout.write(helpText);
+};
