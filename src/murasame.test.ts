@@ -55,17 +55,17 @@ test("register a nested command", t => {
   t.true(isCalled);
 });
 
-test("register a nested command with params", t => {
+test("register a nested command with options", t => {
   let isCalled = false;
 
   new Murasame.default("#root")
     .sub("hello")
     .sub<{ y: boolean; key: string }>("world")
     .describe("hello world command")
-    .param("y", { isRequired: true, description: "", default: true })
-    .param("key", { isRequired: false, description: "", default: "value" })
-    .action(params => {
-      if (params.y === true && params.key === "value") {
+    .option("y", { isRequired: true, description: "", default: true })
+    .option("key", { isRequired: false, description: "", default: "value" })
+    .action(options => {
+      if (options.y === true && options.key === "value") {
         isCalled = true;
       }
     })
@@ -76,15 +76,15 @@ test("register a nested command with params", t => {
   t.true(isCalled);
 });
 
-test("register a command with default params", t => {
+test("register a command with default options", t => {
   let isCalled = false;
 
   new Murasame.default("#root")
     .sub<{ y: boolean; key: string }>("hello")
-    .param("y", { isRequired: false, description: "", default: true })
-    .param("key", { isRequired: false, description: "", default: "value" })
-    .action(params => {
-      if (params.y === true && params.key === "value") {
+    .option("y", { isRequired: false, description: "", default: true })
+    .option("key", { isRequired: false, description: "", default: "value" })
+    .action(options => {
+      if (options.y === true && options.key === "value") {
         isCalled = true;
       }
     })
@@ -94,14 +94,14 @@ test("register a command with default params", t => {
   t.true(isCalled);
 });
 
-test("Quoted param", t => {
+test("Quoted options", t => {
   let isCalled = false;
 
   new Murasame.default("#root")
     .sub<{ key: string }>("hello")
-    .param("key", { isRequired: false, description: "", default: "value" })
-    .action(params => {
-      if (params.key === "value") {
+    .option("key", { isRequired: false, description: "", default: "value" })
+    .action(options => {
+      if (options.key === "value") {
         isCalled = true;
       }
     })
@@ -111,14 +111,14 @@ test("Quoted param", t => {
   t.true(isCalled);
 });
 
-test("Single quoted param", t => {
+test("Single quoted options", t => {
   let isCalled = false;
 
   new Murasame.default("#root")
     .sub<{ key: string }>("hello")
-    .param("key", { isRequired: false, description: "", default: "value" })
-    .action(params => {
-      if (params.key === "value") {
+    .option("key", { isRequired: false, description: "", default: "value" })
+    .action(options => {
+      if (options.key === "value") {
         isCalled = true;
       }
     })
@@ -134,7 +134,7 @@ test("should get help", t => {
   new Murasame.default("#root")
     .sub<{ key: string }>("hello")
     .describe("This is description for hello subcommand")
-    .param("key", { isRequired: false, description: "", default: "value" })
+    .option("key", { isRequired: false, description: "", default: "value" })
     .action((_0, actualHelp) => (help = actualHelp))
     .super()
     .exec("hello", "--key='value'");
@@ -145,12 +145,12 @@ test("should get help", t => {
 test("write help", t => {
   new Murasame.default("#root")
     .describe("desribe help for root")
-    .param("a", {
+    .option("a", {
       isRequired: false,
       description: "parameter A.",
       default: false
     })
-    .param("abc", {
+    .option("abc", {
       isRequired: false,
       description: "parameter ABC.",
       default: "default-value-for-ABC"

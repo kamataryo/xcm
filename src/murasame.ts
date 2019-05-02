@@ -1,7 +1,7 @@
 import * as shlex from "shlex";
 import * as table from "text-table";
 
-export type MurasameParams = {
+export type MurasameOptions = {
   [key: string]: {
     isRequired: boolean;
     description: string;
@@ -13,17 +13,17 @@ export type MurasameParams = {
 export type MurasameHelp = {
   phrase: string;
   description?: string;
-  params: MurasameParams;
+  options: MurasameOptions;
   sub: MurasameHelp[];
 };
 
 export type MurasameExecutor<T> = (
-  params: T,
+  options: T,
   helps: MurasameHelp,
   phrases?: string[]
 ) => any;
 
-export default class MurasameNode<Params> {
+export default class MurasameNode<Options> {
   static isOption = (phrase: string) => {
     const yesNoMatch = phrase.match(/^-([a-z,A-Z,0-9])+$/);
     const keyValueMatch = phrase.match(/^--([a-z,A-Z][a-z,A-Z,0-9]+)=(.+)$/);
@@ -32,8 +32,8 @@ export default class MurasameNode<Params> {
 
   private phrase: string;
   private description?: string;
-  private params: MurasameParams = {}; // parameter definitions
-  private executor?: MurasameExecutor<Params>;
+  private options: MurasameOptions = {}; // parameter definitions
+  private executor?: MurasameExecutor<Options>;
   private childNodes: MurasameNode<any>[] = [];
   private parent: MurasameNode<any>;
   constructor(phrase: string, parent?: MurasameNode<any>) {
@@ -46,7 +46,7 @@ export default class MurasameNode<Params> {
     return this;
   }
 
-  param(
+  option(
     key: string | string[],
     options: {
       isRequired?: boolean;
@@ -55,7 +55,7 @@ export default class MurasameNode<Params> {
     } = {}
   ) {
     const keys = Array.isArray(key) ? key : [key];
-    const additionalParams = keys.reduce(
+    const additionalOptions = keys.reduce(
       (prev, key) => ({
         ...prev,
         [key]: {
@@ -69,14 +69,14 @@ export default class MurasameNode<Params> {
       {}
     );
 
-    this.params = {
-      ...this.params,
-      ...additionalParams
+    this.options = {
+      ...this.options,
+      ...additionalOptions
     };
     return this;
   }
 
-  action(action: MurasameExecutor<Params>) {
+  action(action: MurasameExecutor<Options>) {
     this.executor = action;
     return this;
   }
@@ -86,8 +86,8 @@ export default class MurasameNode<Params> {
     return this;
   }
 
-  sub<ChildParams>(phrase: string): MurasameNode<ChildParams> {
-    const node = new MurasameNode<ChildParams>(phrase, this);
+  sub<ChildOptions>(phrase: string): MurasameNode<ChildOptions> {
+    const node = new MurasameNode<ChildOptions>(phrase, this);
     this.childNodes.push(node);
     return node;
   }
@@ -105,26 +105,26 @@ export default class MurasameNode<Params> {
     return false;
   }
 
-  private getHelps(): any {
+  private getHelps(): MurasameHelp {
     return {
       phrase: this.phrase,
       description: this.description || "",
-      params: this.params,
+      options: this.options,
       sub: this.childNodes.map(node => node.getHelps())
     };
   }
 
   exec(...phrases: string[]): boolean {
-    const params: any = {};
+    const options: any = {};
     const traversedPhrases = [this.phrase];
-    let currentNode: MurasameNode<Params> = this;
+    let currentNode: MurasameNode<Options> = this;
     for (let phrase of phrases) {
       const { yesNoMatch, keyValueMatch } = MurasameNode.isOption(phrase);
       if (yesNoMatch) {
-        params[yesNoMatch[1]] = true;
+        options[yesNoMatch[1]] = true;
       } else if (keyValueMatch) {
-        // solve quoted params like --url="https://example.com"
-        params[keyValueMatch[1]] = shlex.split(keyValueMatch[2])[0];
+        // solve quoted options like --url="https://example.com"
+        options[keyValueMatch[1]] = shlex.split(keyValueMatch[2])[0];
       } else {
         const nextNode = currentNode.findChildNode(phrase);
         if (nextNode) {
@@ -137,17 +137,17 @@ export default class MurasameNode<Params> {
       }
     }
 
-    const defaultParams = Object.keys(currentNode.params).reduce(
+    const defaultOptions = Object.keys(currentNode.options).reduce(
       (prev, key) => {
-        return { ...prev, [key]: currentNode.params[key].default };
+        return { ...prev, [key]: currentNode.options[key].default };
       },
       {}
     );
 
-    // check params type
-    for (let key of Object.keys(currentNode.params)) {
-      const { isRequired } = currentNode.params[key];
-      if (isRequired && params[key] === void 0) {
+    // check options type
+    for (let key of Object.keys(currentNode.options)) {
+      const { isRequired } = currentNode.options[key];
+      if (isRequired && options[key] === void 0) {
         process.stderr.write(`${key} is required, but not given.`);
         return false;
       }
@@ -155,7 +155,7 @@ export default class MurasameNode<Params> {
 
     typeof currentNode.executor === "function" &&
       currentNode.executor(
-        { ...defaultParams, ...params },
+        { ...defaultOptions, ...options },
         this.getHelps(),
         traversedPhrases
       );
@@ -183,26 +183,28 @@ const murasameHelpWriter = (
   help: MurasameHelp,
   traversedPhrases: string[]
 ) => {
-  const { description, params, sub } = help;
+  const { description, options, sub } = help;
 
   const parentalPhrases = traversedPhrases.splice(
     0,
     traversedPhrases.length - 1
   );
 
-  const options =
-    Object.keys(params).length > 0
+  const optionLines =
+    Object.keys(options).length > 0
       ? `Options:
 ${table(
-  Object.keys(params).map(key => {
+  Object.keys(options).map(key => {
     const displayOption = key.length > 1 ? `--${key}` : `-${key}`;
-    const defaultValue = params[key].default ? `[${params[key].default}]` : "";
-    return ["    ", displayOption, defaultValue, params[key].description];
+    const defaultValue = options[key].default
+      ? `[${options[key].default}]`
+      : "";
+    return ["    ", displayOption, defaultValue, options[key].description];
   })
 )}`
       : "";
 
-  const commands =
+  const commandLines =
     sub.length > 0
       ? `Commands:
 ${table(sub.map(({ phrase, description }) => ["    ", phrase, description]))}`
@@ -214,9 +216,9 @@ ${table(sub.map(({ phrase, description }) => ["    ", phrase, description]))}`
       "",
       description,
       "",
-      options,
+      optionLines,
       ``,
-      commands,
+      commandLines,
       ""
     ].join("\n")
   );
