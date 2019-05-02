@@ -4,17 +4,11 @@
 
 A Node.js CLI tool builder.
 
-## features
-
-- easy to nest
-- Chain API
-- Asynchronous support
-- TypeScript Support
-
-## install
+## installation
 
 ```shell
-$ yarn add murasame # or npm install murasame --save
+$ yarn add murasame
+$ npm install murasame --save # Use npm
 ```
 
 ## Usage
@@ -22,10 +16,15 @@ $ yarn add murasame # or npm install murasame --save
 ```JavaScript
 #!/usr/bin/env node
 
+//
 // cli.js
-const Murasame = require('murasame').default;
+//
 
-const command = new Murasame('murasame');
+
+import Command from 'murasame';
+
+const command = new Command('murasame');
+
 command
   .sub('init')
   .action(() => process.stdout.srite('init!'))
@@ -34,8 +33,8 @@ command
 
 command
   .sub('opt')
-  .param('hello', true, 'world')
-  .action(params => process.stdout.srite(params))
+  .option('hello', {isRequred: true, default: 'world' })
+  .action(options => process.stdout.srite(options))
 
 command
   .sub('a')
@@ -65,24 +64,35 @@ command.parse()
 ```
 
 ```shell
-$ cli.js init                     # init!
-$ cli.js init wow                 # wow!
-$ cli.js opt                      # { hello: "world" }
-$ cli.js opt -y --hello="Node.js" # { y: true, hello: "Node.js" }
-$ cli.js a b c d e                # abcde!
-$ cli.js A B C D E                # ABCDE!
-$ cli.js help                     # <show help>
+$ ./cli.js init                     # init!
+$ ./cli.js init wow                 # wow!
+$ ./cli.js opt                      # { hello: "world" }
+$ ./cli.js opt -y --hello="Node.js" # { y: true, hello: "Node.js" }
+$ ./cli.js a b c d e                # abcde!
+$ ./cli.js A B C D E                # ABCDE!
+$ ./cli.js help                     # <show help>
 ```
 
 ## APIs
 
-- `command.describe(description:string)`
+### `constructor`
+
+```javascript
+import Command from "murasame";
+const commnad = new Command("cli.js");
+command.action(() => process.stdout.write("hello!")).parse();
+```
+
+```shell
+$ ./cli.js # hello!
+```
+
 - `command.sub(phrase:string)`
-- `command.param()`
-- `command.action()`
+- `command.option(phrase, options)`
+- `command.action(callback)`
+- `command.describe(description:string)`
+- `action callback`
 - `command.super()`
-- `command.exec()`
-- `command.execAsync()`
 - `command.parse()`
 - `command.parseAsync()`
 

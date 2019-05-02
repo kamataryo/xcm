@@ -17,13 +17,14 @@ export type MurasameHelp = {
   sub: MurasameHelp[];
 };
 
-export type MurasameExecutor<T> = (
+export type MurasameExecutor<T = any> = (
+  args: string[],
   options: T,
   helps: MurasameHelp,
   phrases?: string[]
 ) => any;
 
-export default class MurasameNode<Options> {
+export default class MurasameNode<T1 = any> {
   static isOption = (phrase: string) => {
     const yesNoMatch = phrase.match(/^-([a-z,A-Z,0-9])+$/);
     const keyValueMatch = phrase.match(/^--([a-z,A-Z][a-z,A-Z,0-9]+)=(.+)$/);
@@ -33,7 +34,7 @@ export default class MurasameNode<Options> {
   private phrase: string;
   private description?: string;
   private options: MurasameOptions = {}; // parameter definitions
-  private executor?: MurasameExecutor<Options>;
+  private executor?: MurasameExecutor<T1>;
   private childNodes: MurasameNode<any>[] = [];
   private parent: MurasameNode<any>;
   constructor(phrase: string, parent?: MurasameNode<any>) {
@@ -76,7 +77,7 @@ export default class MurasameNode<Options> {
     return this;
   }
 
-  action(action: MurasameExecutor<Options>) {
+  action(action: MurasameExecutor<T1>) {
     this.executor = action;
     return this;
   }
@@ -86,8 +87,8 @@ export default class MurasameNode<Options> {
     return this;
   }
 
-  sub<ChildOptions>(phrase: string): MurasameNode<ChildOptions> {
-    const node = new MurasameNode<ChildOptions>(phrase, this);
+  sub<T2>(phrase: string): MurasameNode<T2> {
+    const node = new MurasameNode<T2>(phrase, this);
     this.childNodes.push(node);
     return node;
   }
@@ -115,9 +116,11 @@ export default class MurasameNode<Options> {
   }
 
   exec(...phrases: string[]): boolean {
+    const args: string[] = [];
     const options: any = {};
     const traversedPhrases = [this.phrase];
-    let currentNode: MurasameNode<Options> = this;
+    let currentNode: MurasameNode<T1> = this;
+
     for (let phrase of phrases) {
       const { yesNoMatch, keyValueMatch } = MurasameNode.isOption(phrase);
       if (yesNoMatch) {
@@ -131,8 +134,7 @@ export default class MurasameNode<Options> {
           traversedPhrases.push(phrase);
           currentNode = nextNode;
         } else {
-          process.stderr.write("no such command");
-          return false;
+          args.push(phrase);
         }
       }
     }
@@ -155,6 +157,7 @@ export default class MurasameNode<Options> {
 
     typeof currentNode.executor === "function" &&
       currentNode.executor(
+        args,
         { ...defaultOptions, ...options },
         this.getHelps(),
         traversedPhrases
@@ -180,6 +183,7 @@ export default class MurasameNode<Options> {
 
 const murasameHelpWriter = (
   _0: any,
+  _1: any,
   help: MurasameHelp,
   traversedPhrases: string[]
 ) => {

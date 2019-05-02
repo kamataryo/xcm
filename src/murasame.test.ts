@@ -13,6 +13,22 @@ test("register a command", t => {
   t.true(isCalled);
 });
 
+test("receives arguments", t => {
+  let isCalled = false;
+
+  new Murasame.default("#root")
+    .sub("hello")
+    .action(args => {
+      if (args[0] === "arg1" && args[1] === "arg2") {
+        isCalled = true;
+      }
+    })
+    .super()
+    .exec("hello", "arg1", "arg2");
+
+  t.true(isCalled);
+});
+
 test("get parent command", t => {
   let isCalled = false;
 
@@ -64,7 +80,7 @@ test("register a nested command with options", t => {
     .describe("hello world command")
     .option("y", { isRequired: true, description: "", default: true })
     .option("key", { isRequired: false, description: "", default: "value" })
-    .action(options => {
+    .action((_0, options) => {
       if (options.y === true && options.key === "value") {
         isCalled = true;
       }
@@ -83,7 +99,7 @@ test("register a command with default options", t => {
     .sub<{ y: boolean; key: string }>("hello")
     .option("y", { isRequired: false, description: "", default: true })
     .option("key", { isRequired: false, description: "", default: "value" })
-    .action(options => {
+    .action((_0, options) => {
       if (options.y === true && options.key === "value") {
         isCalled = true;
       }
@@ -100,7 +116,7 @@ test("Quoted options", t => {
   new Murasame.default("#root")
     .sub<{ key: string }>("hello")
     .option("key", { isRequired: false, description: "", default: "value" })
-    .action(options => {
+    .action((_0, options) => {
       if (options.key === "value") {
         isCalled = true;
       }
@@ -117,7 +133,7 @@ test("Single quoted options", t => {
   new Murasame.default("#root")
     .sub<{ key: string }>("hello")
     .option("key", { isRequired: false, description: "", default: "value" })
-    .action(options => {
+    .action((_0, options) => {
       if (options.key === "value") {
         isCalled = true;
       }
@@ -135,7 +151,7 @@ test("should get help", t => {
     .sub<{ key: string }>("hello")
     .describe("This is description for hello subcommand")
     .option("key", { isRequired: false, description: "", default: "value" })
-    .action((_0, actualHelp) => (help = actualHelp))
+    .action((_0, _1, actualHelp) => (help = actualHelp))
     .super()
     .exec("hello", "--key='value'");
 
