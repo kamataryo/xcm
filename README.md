@@ -2,12 +2,19 @@
 
 [![Build Status](https://travis-ci.org/kamataryo/murasame.svg?branch=master)](https://travis-ci.org/kamataryo/murasame)
 
-A Simple nested Node.js CLI tool buider.
+A Node.js CLI tool builder.
+
+## features
+
+- easy to nest
+- Chain API
+- Asynchronous support
+- TypeScript Support
 
 ## install
 
 ```shell
-$ npm install murasame --save
+$ yarn add murasame # or npm install murasame --save
 ```
 
 ## Usage
@@ -16,19 +23,19 @@ $ npm install murasame --save
 #!/usr/bin/env node
 
 // cli.js
-import Murasame from 'murasame'
+const Murasame = require('murasame').default;
 
 const command = new Murasame('murasame');
 command
   .sub('init')
-  .action(() => console.log('init!'))
+  .action(() => process.stdout.srite('init!'))
     .sub('wow')
-    .action(() => console.log('wow!'))
+    .action(() => process.stdout.srite('wow!'))
 
 command
   .sub('opt')
   .param('hello', true, 'world')
-  .action(params => console.log(params))
+  .action(params => process.stdout.srite(params))
 
 command
   .sub('a')
@@ -36,7 +43,7 @@ command
       .sub('c')
         .sub('d')
           .sub('e')
-          .action(() => console.log('abcde!'))
+          .action(() => process.stdout.srite('abcde!'))
           .suprer()
         .super()
       .super()
@@ -47,7 +54,7 @@ command
       .sub('C')
         .sub('D')
           .sub('E')
-          .action(() => console.log('ABCDE!'))
+          .action(() => process.stdout.srite('ABCDE!'))
 
 command
   .sub('help')
@@ -66,6 +73,18 @@ $ cli.js a b c d e                # abcde!
 $ cli.js A B C D E                # ABCDE!
 $ cli.js help                     # <show help>
 ```
+
+## APIs
+
+- `command.describe(description:string)`
+- `command.sub(phrase:string)`
+- `command.param()`
+- `command.action()`
+- `command.super()`
+- `command.exec()`
+- `command.execAsync()`
+- `command.parse()`
+- `command.parseAsync()`
 
 ## Development
 

@@ -1,11 +1,13 @@
 {
   "name": "murasame",
   "version": "0.0.2-beta.0",
-  "description": "A Simple nested Node.js CLI tool buider.",
+  "description": "A Node.js CLI tool builder.",
+  "keywords": ["cli", "nest", "command", "shell", "bin"],
   "main": "dist/index.js",
   "license": "MIT",
   "private": false,
   "repository": "git@github.com:kamataryo/murasame.git",
+  "bugs": "https://github.com/kamataryo/murasame/issues",
   "author": "kamataryo <mugil.cephalus+github.com@gmail.com>",
   "scripts": {
     "test": "tsc && ava",
