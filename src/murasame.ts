@@ -1,4 +1,5 @@
 type MurasameExecutor<T> = (params: T, phrases?: string[]) => void;
+type MuramasaOption = string | { description?: string; defaultParams?: any };
 
 export default class MurasameNode<Params> {
   static isOption = (phrase: string) => {
@@ -16,27 +17,31 @@ export default class MurasameNode<Params> {
   private childNodes: MurasameNode<any>[] = [];
   constructor(
     phrase: string,
-    options: string | { description?: string; defaultParams?: any } = {},
-    executor?: MurasameExecutor<Params>
+    arg1?: MuramasaOption | MurasameExecutor<Params>,
+    arg2?: MurasameExecutor<Params>
   ) {
     this.phrase = phrase;
-    this.executor = executor;
 
-    if (typeof options === "string") {
-      this.description = options;
-      this.defaultParams = {};
+    if (typeof arg1 === "function") {
+      this.executor = arg1;
     } else {
-      this.description = options.description || "";
-      this.defaultParams = options.defaultParams || {};
+      this.executor = arg2;
+      if (typeof arg2 === "string") {
+        this.description = arg2;
+        this.defaultParams = {};
+      } else if (typeof arg1 === "object") {
+        this.description = arg1.description || "";
+        this.defaultParams = arg1.defaultParams || {};
+      }
     }
   }
 
   registerChildNode<ChildParams>(
     phrase: string,
-    options: string | { description?: string; defaultParams?: any } = {},
-    executor?: MurasameExecutor<ChildParams>
+    arg1?: MuramasaOption | MurasameExecutor<ChildParams>,
+    arg2?: MurasameExecutor<ChildParams>
   ): MurasameNode<ChildParams> {
-    const node = new MurasameNode<ChildParams>(phrase, options, executor);
+    const node = new MurasameNode<ChildParams>(phrase, arg1, arg2);
     this.childNodes.push(node);
     return node;
   }

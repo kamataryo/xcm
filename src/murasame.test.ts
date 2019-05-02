@@ -4,8 +4,17 @@ import MurasameNode from "./murasame";
 test("register a command", t => {
   let isCalled = false;
 
-  const rootMurasameNode = new MurasameNode("#root", "root description");
-  rootMurasameNode.registerChildNode<{}>(
+  const rootMurasameNode = new MurasameNode("#root");
+  rootMurasameNode.registerChildNode("hello", () => (isCalled = true));
+  rootMurasameNode.exec("hello");
+  t.true(isCalled);
+});
+
+test("register a command with description", t => {
+  let isCalled = false;
+
+  const rootMurasameNode = new MurasameNode("#root");
+  rootMurasameNode.registerChildNode(
     "hello",
     "this is command for `hello`",
     () => (isCalled = true)
@@ -17,10 +26,10 @@ test("register a command", t => {
 test("register a nested command", t => {
   let isCalled = false;
 
-  const rootMurasameNode = new MurasameNode("#root", "root description");
+  const rootMurasameNode = new MurasameNode("#root");
   rootMurasameNode
-    .registerChildNode<{}>("hello")
-    .registerChildNode<{}>("world", "", () => (isCalled = true));
+    .registerChildNode("hello")
+    .registerChildNode("world", "description", () => (isCalled = true));
   rootMurasameNode.exec("hello", "world");
   t.true(isCalled);
 });
@@ -28,9 +37,9 @@ test("register a nested command", t => {
 test("register a nested command with params", t => {
   let isCalled = false;
 
-  const rootMurasameNode = new MurasameNode("#root", "root description");
+  const rootMurasameNode = new MurasameNode("#root");
   rootMurasameNode
-    .registerChildNode<{}>("hello")
+    .registerChildNode("hello")
     .registerChildNode<{ y: boolean; key: string }>("world", "", params => {
       if (params.y === true && params.key === "value") {
         isCalled = true;
@@ -43,7 +52,7 @@ test("register a nested command with params", t => {
 test("register a command with default params", t => {
   let isCalled = false;
 
-  const rootMurasameNode = new MurasameNode("#root", "root description");
+  const rootMurasameNode = new MurasameNode("#root");
   rootMurasameNode.registerChildNode<{ y: boolean; key: string }>(
     "hello",
     {
