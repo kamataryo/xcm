@@ -4,7 +4,7 @@ import * as table from "text-table";
 export type MurasameOptions = {
   [key: string]: {
     isRequired: boolean;
-    description: string;
+    description: string[];
     default: string | boolean;
     type: string;
   };
@@ -12,7 +12,7 @@ export type MurasameOptions = {
 
 export type MurasameHelp = {
   phrase: string;
-  description?: string;
+  description: string[];
   options: MurasameOptions;
   sub: MurasameHelp[];
 };
@@ -32,7 +32,7 @@ export default class MurasameNode<T1 = any> {
   };
 
   private phrase: string;
-  private description?: string;
+  private description: string[] = [];
   private options: MurasameOptions = {}; // parameter definitions
   private executor?: MurasameExecutor<T1>;
   private childNodes: MurasameNode<any>[] = [];
@@ -42,7 +42,7 @@ export default class MurasameNode<T1 = any> {
     this.parent = parent || this;
   }
 
-  describe(description: string) {
+  describe(...description: string[]) {
     this.description = description;
     return this;
   }
@@ -109,16 +109,16 @@ export default class MurasameNode<T1 = any> {
   private getHelps(): MurasameHelp {
     return {
       phrase: this.phrase,
-      description: this.description || "",
+      description: this.description,
       options: this.options,
       sub: this.childNodes.map(node => node.getHelps())
     };
   }
 
   exec(...phrases: string[]): boolean {
-    const args: string[] = [];
+    const descendants: string[] = [];
     const options: any = {};
-    const traversedPhrases = [this.phrase];
+    const history = [this.phrase];
     let currentNode: MurasameNode<T1> = this;
 
     for (let phrase of phrases) {
@@ -131,10 +131,10 @@ export default class MurasameNode<T1 = any> {
       } else {
         const nextNode = currentNode.findChildNode(phrase);
         if (nextNode) {
-          traversedPhrases.push(phrase);
+          history.push(phrase);
           currentNode = nextNode;
         } else {
-          args.push(phrase);
+          descendants.push(phrase);
         }
       }
     }
@@ -157,10 +157,10 @@ export default class MurasameNode<T1 = any> {
 
     typeof currentNode.executor === "function" &&
       currentNode.executor(
-        args,
+        descendants,
         { ...defaultOptions, ...options },
-        this.getHelps(),
-        traversedPhrases
+        currentNode.super().getHelps(),
+        history
       );
 
     return true;
@@ -185,14 +185,11 @@ const murasameHelpWriter = (
   _0: any,
   _1: any,
   help: MurasameHelp,
-  traversedPhrases: string[]
+  history: string[]
 ) => {
   const { description, options, sub } = help;
 
-  const parentalPhrases = traversedPhrases.splice(
-    0,
-    traversedPhrases.length - 1
-  );
+  const ancestors = history.splice(0, history.length - 1);
 
   const optionLines =
     Object.keys(options).length > 0
@@ -207,23 +204,31 @@ ${table(
   })
 )}`
       : "";
-
   const commandLines =
     sub.length > 0
       ? `Commands:
-${table(sub.map(({ phrase, description }) => ["    ", phrase, description]))}`
+${table(
+  sub.map(({ phrase, description }) => ["    ", phrase, ...description])
+)}`
       : "";
 
   process.stdout.write(
-    [
-      `Usage: ${parentalPhrases.join(" ")} [command] [options]`,
-      "",
-      description,
-      "",
-      optionLines,
-      ``,
-      commandLines,
-      ""
-    ].join("\n")
+    "\n" +
+      [
+        [
+          "Usage:",
+          ...ancestors,
+          commandLines ? "[command / ...arguments]" : false,
+          optionLines ? "[options]" : false
+        ]
+          .filter(x => !!x)
+          .join(" "),
+        description.join(" "),
+        optionLines,
+        commandLines
+      ]
+        .filter(x => !!x)
+        .join("\n\n") +
+      "\n"
   );
 };
