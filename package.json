@@ -17,6 +17,7 @@
   "author": "kamataryo <mugil.cephalus+github.com@gmail.com>",
   "scripts": {
     "test": "tsc && ava",
+    "start:samples": "./samples/crud.test.sh && ./samples/nest.test.sh",
     "lint": "eslint --cache src/**/*",
     "format": "prettier src/* --write",
     "build": "tsc"

@@ -14,7 +14,7 @@ command
 command
   .sub("update")
   .describe("[key] [value]", "This is update command.")
-  .action(() => process.stdout.write("update"))
+  .action(() => process.stdout.write("update\n"))
   .sub("help")
   .describe("This is help for update command.")
   .help();
@@ -22,11 +22,11 @@ command
 command
   .sub("list")
   .describe("", "This is list command.")
-  .action(() => process.stdout.write("list"));
+  .action(() => process.stdout.write("list\n"));
 
 command
   .sub("delete")
   .describe("[key]", "This is delete command.")
-  .action(() => process.stdout.write("delete"));
+  .action(() => process.stdout.write("delete\n"));
 
 command.parse();
