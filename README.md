@@ -1,6 +1,8 @@
-# XCM
+# Xcm
 
 [![Build Status](https://travis-ci.org/kamataryo/xcm.svg?branch=master)](https://travis-ci.org/kamataryo/xcm)
+
+![](./raw/image.png)
 
 XCM or Xcommand is a Node.js CLI tool builder.
 
