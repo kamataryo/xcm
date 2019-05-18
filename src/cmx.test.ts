@@ -1,5 +1,5 @@
 import test from "ava";
-import Command from "./murasame";
+import Command from "./cmx";
 
 test("register a command", t => {
   let isCalled = false;

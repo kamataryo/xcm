@@ -1,14 +1,14 @@
 # MURASAME
 
-[![Build Status](https://travis-ci.org/kamataryo/murasame.svg?branch=master)](https://travis-ci.org/kamataryo/murasame)
+[![Build Status](https://travis-ci.org/kamataryo/cmx.svg?branch=master)](https://travis-ci.org/kamataryo/cmx)
 
 A Node.js CLI tool builder.
 
 ## installation
 
 ```shell
-$ yarn add murasame
-$ npm install murasame --save # Use npm
+$ yarn add cmx
+$ npm install cmx --save # Use npm
 ```
 
 ## Usage
@@ -21,9 +21,9 @@ $ npm install murasame --save # Use npm
 //
 
 
-import Command from 'murasame';
+import Command from 'cmx';
 
-const command = new Command('murasame');
+const command = new Command('cmx');
 
 command
   .sub('init')
@@ -78,7 +78,7 @@ $ ./cli.js help                     # <show help>
 ### `constructor`
 
 ```javascript
-import Command from "murasame";
+import Command from "cmx";
 const commnad = new Command("cli.js");
 command.action(() => process.stdout.write("init!")).parse();
 ```
@@ -92,7 +92,7 @@ $ ./cli.js # init!
 `sub` define sub command.
 
 ```javascript
-import Command from "murasame";
+import Command from "cmx";
 new Command("cli.js");
   .sub("hello")
   .action(() => process.stdout.write("hello!"))
@@ -108,7 +108,7 @@ $ ./cli.js hello # hello!
 `option` defines acceptable options. This will be used with `help`.
 
 ```javascript
-import Command from "murasame";
+import Command from "cmx";
 new Command("cli.js");
   .option('word', { isRequired: true })
   .action(opts => process.stdout.write(`say ${opts.word}!`))
@@ -138,7 +138,7 @@ $ ./cli.js --word=hello # say hello!
 ## Development
 
 ```shell
-$ git clone git@github.com:kamataryo/murasame.git
-$ cd murasame
+$ git clone git@github.com:kamataryo/cmx.git
+$ cd cmx
 $ yarn # or npm install
 ```

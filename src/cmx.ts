@@ -1,7 +1,7 @@
 import * as shlex from "shlex";
 import * as table from "text-table";
 
-export type MurasameOptions = {
+export type CmxOptions = {
   [key: string]: {
     isRequired: boolean;
     description: string[];
@@ -10,21 +10,21 @@ export type MurasameOptions = {
   };
 };
 
-export type MurasameHelp = {
+export type CmxHelp = {
   phrase: string;
   description: string[];
-  options: MurasameOptions;
-  sub: MurasameHelp[];
+  options: CmxOptions;
+  sub: CmxHelp[];
 };
 
-export type MurasameExecutor<T = any> = (
+export type CmxExecutor<T = any> = (
   args: string[],
   options: T,
-  helps: MurasameHelp,
+  helps: CmxHelp,
   phrases?: string[]
 ) => any;
 
-export default class MurasameNode<T1 = any> {
+export default class CmxNode<T1 = any> {
   static isOption = (phrase: string) => {
     const yesNoMatch = phrase.match(/^-([a-z,A-Z,0-9])+$/);
     const keyValueMatch = phrase.match(/^--([a-z,A-Z][a-z,A-Z,0-9]+)=(.+)$/);
@@ -33,11 +33,11 @@ export default class MurasameNode<T1 = any> {
 
   private phrase: string;
   private description: string[] = [];
-  private options: MurasameOptions = {}; // parameter definitions
-  private executor?: MurasameExecutor<T1>;
-  private childNodes: MurasameNode<any>[] = [];
-  private parent: MurasameNode<any>;
-  constructor(phrase: string, parent?: MurasameNode<any>) {
+  private options: CmxOptions = {}; // parameter definitions
+  private executor?: CmxExecutor<T1>;
+  private childNodes: CmxNode<any>[] = [];
+  private parent: CmxNode<any>;
+  constructor(phrase: string, parent?: CmxNode<any>) {
     this.phrase = phrase;
     this.parent = parent || this;
   }
@@ -77,18 +77,18 @@ export default class MurasameNode<T1 = any> {
     return this;
   }
 
-  action(action: MurasameExecutor<T1>) {
+  action(action: CmxExecutor<T1>) {
     this.executor = action;
     return this;
   }
 
   help() {
-    this.executor = murasameHelpWriter;
+    this.executor = cmxHelpWriter;
     return this;
   }
 
-  sub<T2>(phrase: string): MurasameNode<T2> {
-    const node = new MurasameNode<T2>(phrase, this);
+  sub<T2>(phrase: string): CmxNode<T2> {
+    const node = new CmxNode<T2>(phrase, this);
     this.childNodes.push(node);
     return node;
   }
@@ -97,7 +97,7 @@ export default class MurasameNode<T1 = any> {
     return this.parent;
   }
 
-  private findChildNode(phrase: string): MurasameNode<any> | false {
+  private findChildNode(phrase: string): CmxNode<any> | false {
     for (let node of this.childNodes) {
       if (node.phrase === phrase) {
         return node;
@@ -106,7 +106,7 @@ export default class MurasameNode<T1 = any> {
     return false;
   }
 
-  private getHelps(): MurasameHelp {
+  private getHelps(): CmxHelp {
     return {
       phrase: this.phrase,
       description: this.description,
@@ -119,10 +119,10 @@ export default class MurasameNode<T1 = any> {
     const descendants: string[] = [];
     const options: any = {};
     const history = [this.phrase];
-    let currentNode: MurasameNode<T1> = this;
+    let currentNode: CmxNode<T1> = this;
 
     for (let phrase of phrases) {
-      const { yesNoMatch, keyValueMatch } = MurasameNode.isOption(phrase);
+      const { yesNoMatch, keyValueMatch } = CmxNode.isOption(phrase);
       if (yesNoMatch) {
         options[yesNoMatch[1]] = true;
       } else if (keyValueMatch) {
@@ -181,12 +181,7 @@ export default class MurasameNode<T1 = any> {
   }
 }
 
-const murasameHelpWriter = (
-  _0: any,
-  _1: any,
-  help: MurasameHelp,
-  history: string[]
-) => {
+const cmxHelpWriter = (_0: any, _1: any, help: CmxHelp, history: string[]) => {
   const { description, options, sub } = help;
 
   const ancestors = history.splice(0, history.length - 1);
