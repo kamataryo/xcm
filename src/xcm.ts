@@ -1,7 +1,7 @@
 import * as shlex from "shlex";
 import * as table from "text-table";
 
-export type CmxOptions = {
+export type XcmOptions = {
   [key: string]: {
     isRequired: boolean;
     description: string[];
@@ -10,21 +10,21 @@ export type CmxOptions = {
   };
 };
 
-export type CmxHelp = {
+export type XcmHelp = {
   phrase: string;
   description: string[];
-  options: CmxOptions;
-  sub: CmxHelp[];
+  options: XcmOptions;
+  sub: XcmHelp[];
 };
 
-export type CmxExecutor<T = any> = (
+export type XcmExecutor<T = any> = (
   args: string[],
   options: T,
-  helps: CmxHelp,
+  helps: XcmHelp,
   phrases?: string[]
 ) => any;
 
-export default class CmxNode<T1 = any> {
+export default class XcmNode<T1 = any> {
   static isOption = (phrase: string) => {
     const yesNoMatch = phrase.match(/^-([a-z,A-Z,0-9])+$/);
     const keyValueMatch = phrase.match(/^--([a-z,A-Z][a-z,A-Z,0-9]+)=(.+)$/);
@@ -33,11 +33,11 @@ export default class CmxNode<T1 = any> {
 
   private phrase: string;
   private description: string[] = [];
-  private options: CmxOptions = {}; // parameter definitions
-  private executor?: CmxExecutor<T1>;
-  private childNodes: CmxNode<any>[] = [];
-  private parent: CmxNode<any>;
-  constructor(phrase: string, parent?: CmxNode<any>) {
+  private options: XcmOptions = {}; // parameter definitions
+  private executor?: XcmExecutor<T1>;
+  private childNodes: XcmNode<any>[] = [];
+  private parent: XcmNode<any>;
+  constructor(phrase: string, parent?: XcmNode<any>) {
     this.phrase = phrase;
     this.parent = parent || this;
   }
@@ -77,18 +77,18 @@ export default class CmxNode<T1 = any> {
     return this;
   }
 
-  action(action: CmxExecutor<T1>) {
+  action(action: XcmExecutor<T1>) {
     this.executor = action;
     return this;
   }
 
   help() {
-    this.executor = cmxHelpWriter;
+    this.executor = xcmHelpWriter;
     return this;
   }
 
-  sub<T2>(phrase: string): CmxNode<T2> {
-    const node = new CmxNode<T2>(phrase, this);
+  sub<T2>(phrase: string): XcmNode<T2> {
+    const node = new XcmNode<T2>(phrase, this);
     this.childNodes.push(node);
     return node;
   }
@@ -97,7 +97,7 @@ export default class CmxNode<T1 = any> {
     return this.parent;
   }
 
-  private findChildNode(phrase: string): CmxNode<any> | false {
+  private findChildNode(phrase: string): XcmNode<any> | false {
     for (let node of this.childNodes) {
       if (node.phrase === phrase) {
         return node;
@@ -106,7 +106,7 @@ export default class CmxNode<T1 = any> {
     return false;
   }
 
-  private getHelps(): CmxHelp {
+  private getHelps(): XcmHelp {
     return {
       phrase: this.phrase,
       description: this.description,
@@ -119,10 +119,10 @@ export default class CmxNode<T1 = any> {
     const descendants: string[] = [];
     const options: any = {};
     const history = [this.phrase];
-    let currentNode: CmxNode<T1> = this;
+    let currentNode: XcmNode<T1> = this;
 
     for (let phrase of phrases) {
-      const { yesNoMatch, keyValueMatch } = CmxNode.isOption(phrase);
+      const { yesNoMatch, keyValueMatch } = XcmNode.isOption(phrase);
       if (yesNoMatch) {
         options[yesNoMatch[1]] = true;
       } else if (keyValueMatch) {
@@ -181,7 +181,7 @@ export default class CmxNode<T1 = any> {
   }
 }
 
-const cmxHelpWriter = (_0: any, _1: any, help: CmxHelp, history: string[]) => {
+const xcmHelpWriter = (_0: any, _1: any, help: XcmHelp, history: string[]) => {
   const { description, options, sub } = help;
 
   const ancestors = history.splice(0, history.length - 1);

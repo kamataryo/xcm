@@ -1,5 +1,5 @@
 {
-  "name": "cmx",
+  "name": "xcm",
   "version": "1.0.2",
   "description": "A Node.js CLI tool builder.",
   "keywords": [
@@ -12,8 +12,8 @@
   "main": "dist/index.js",
   "license": "MIT",
   "private": false,
-  "repository": "git@github.com:kamataryo/cmx.git",
-  "bugs": "https://github.com/kamataryo/cmx/issues",
+  "repository": "git@github.com:kamataryo/xcm.git",
+  "bugs": "https://github.com/kamataryo/xcm/issues",
   "author": "kamataryo <mugil.cephalus+github.com@gmail.com>",
   "scripts": {
     "test": "tsc && ava",

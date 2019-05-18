@@ -1,2 +1,2 @@
-import CmxNode from "./cmx";
-export default CmxNode;
+import XcmNode from "./xcm";
+export default XcmNode;

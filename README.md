@@ -1,14 +1,14 @@
-# MURASAME
+# XCM
 
-[![Build Status](https://travis-ci.org/kamataryo/cmx.svg?branch=master)](https://travis-ci.org/kamataryo/cmx)
+[![Build Status](https://travis-ci.org/kamataryo/xcm.svg?branch=master)](https://travis-ci.org/kamataryo/xcm)
 
-A Node.js CLI tool builder.
+XCM or Xcommand is a Node.js CLI tool builder.
 
 ## installation
 
 ```shell
-$ yarn add cmx
-$ npm install cmx --save # Use npm
+$ yarn add xcm
+$ npm install xcm --save # Use npm
 ```
 
 ## Usage
@@ -21,9 +21,9 @@ $ npm install cmx --save # Use npm
 //
 
 
-import Command from 'cmx';
+import Command from 'xcm';
 
-const command = new Command('cmx');
+const command = new Command('xcm');
 
 command
   .sub('init')
@@ -78,7 +78,7 @@ $ ./cli.js help                     # <show help>
 ### `constructor`
 
 ```javascript
-import Command from "cmx";
+import Command from "xcm";
 const commnad = new Command("cli.js");
 command.action(() => process.stdout.write("init!")).parse();
 ```
@@ -92,7 +92,7 @@ $ ./cli.js # init!
 `sub` define sub command.
 
 ```javascript
-import Command from "cmx";
+import Command from "xcm";
 new Command("cli.js");
   .sub("hello")
   .action(() => process.stdout.write("hello!"))
@@ -108,7 +108,7 @@ $ ./cli.js hello # hello!
 `option` defines acceptable options. This will be used with `help`.
 
 ```javascript
-import Command from "cmx";
+import Command from "xcm";
 new Command("cli.js");
   .option('word', { isRequired: true })
   .action(opts => process.stdout.write(`say ${opts.word}!`))
@@ -138,7 +138,7 @@ $ ./cli.js --word=hello # say hello!
 ## Development
 
 ```shell
-$ git clone git@github.com:kamataryo/cmx.git
-$ cd cmx
+$ git clone git@github.com:kamataryo/xcm.git
+$ cd xcm
 $ yarn # or npm install
 ```
