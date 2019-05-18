@@ -1,6 +1,6 @@
 {
   "name": "xcm",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A Node.js CLI tool builder.",
   "keywords": [
     "cli",
