@@ -1,10 +1,10 @@
 import test from "ava";
-import * as Murasame from "./murasame";
+import Command, { MurasameHelp } from "./murasame";
 
 test("register a command", t => {
   let isCalled = false;
 
-  new Murasame.default("#root")
+  new Command("#root")
     .sub("hello")
     .action(() => (isCalled = true))
     .super()
@@ -16,7 +16,7 @@ test("register a command", t => {
 test("receives arguments", t => {
   let isCalled = false;
 
-  new Murasame.default("#root")
+  new Command("#root")
     .sub("hello")
     .action(args => {
       if (args[0] === "arg1" && args[1] === "arg2") {
@@ -32,7 +32,7 @@ test("receives arguments", t => {
 test("get parent command", t => {
   let isCalled = false;
 
-  new Murasame.default("#root")
+  new Command("#root")
     .sub("hello")
     .sub("JavaScript")
     .super()
@@ -48,7 +48,7 @@ test("get parent command", t => {
 test("register a command with description", t => {
   let isCalled = false;
 
-  new Murasame.default("#root")
+  new Command("#root")
     .sub("hello")
     .action(() => (isCalled = true))
     .super()
@@ -60,7 +60,7 @@ test("register a command with description", t => {
 test("register a nested command", t => {
   let isCalled = false;
 
-  new Murasame.default("#root")
+  new Command("#root")
     .sub("hello")
     .sub("world")
     .action(() => (isCalled = true))
@@ -74,7 +74,7 @@ test("register a nested command", t => {
 test("register a nested command with options", t => {
   let isCalled = false;
 
-  new Murasame.default("#root")
+  new Command("#root")
     .sub("hello")
     .sub<{ y: boolean; key: string }>("world")
     .describe("hello world command")
@@ -95,7 +95,7 @@ test("register a nested command with options", t => {
 test("register a command with default options", t => {
   let isCalled = false;
 
-  new Murasame.default("#root")
+  new Command("#root")
     .sub<{ y: boolean; key: string }>("hello")
     .option("y", { isRequired: false, description: "", default: true })
     .option("key", { isRequired: false, description: "", default: "value" })
@@ -113,7 +113,7 @@ test("register a command with default options", t => {
 test("Quoted options", t => {
   let isCalled = false;
 
-  new Murasame.default("#root")
+  new Command("#root")
     .sub<{ key: string }>("hello")
     .option("key", { isRequired: false, description: "", default: "value" })
     .action((_0, options) => {
@@ -130,7 +130,7 @@ test("Quoted options", t => {
 test("Single quoted options", t => {
   let isCalled = false;
 
-  new Murasame.default("#root")
+  new Command("#root")
     .sub<{ key: string }>("hello")
     .option("key", { isRequired: false, description: "", default: "value" })
     .action((_0, options) => {
@@ -145,9 +145,9 @@ test("Single quoted options", t => {
 });
 
 test("should get help", t => {
-  let help: Murasame.MurasameHelp;
+  let help: MurasameHelp;
 
-  new Murasame.default("#root")
+  new Command("#root")
     .sub<{ key: string }>("hello")
     .describe("This is description for hello subcommand")
     .option("key", { isRequired: false, description: "", default: "value" })
@@ -159,7 +159,7 @@ test("should get help", t => {
 });
 
 test("write help", t => {
-  new Murasame.default("#root")
+  new Command("#root")
     .describe("desribe help for root")
     .option("a", {
       isRequired: false,
@@ -184,7 +184,7 @@ test("write help", t => {
 });
 
 test("async", t =>
-  new Murasame.default("#root")
+  new Command("#root")
     .sub("async")
     .action(() => new Promise(resolve => setTimeout(resolve, 50)))
     .super()
@@ -192,7 +192,7 @@ test("async", t =>
     .then(result => t.true(result)));
 
 test("no executables", t => {
-  new Murasame.default("#root")
+  new Command("#root")
     .sub("no-exec")
     .super()
     .exec("no-exec");
