@@ -1,5 +1,5 @@
 import test from "ava";
-import Command, { MurasameHelp } from "./murasame";
+import Command from "./murasame";
 
 test("register a command", t => {
   let isCalled = false;
@@ -145,7 +145,7 @@ test("Single quoted options", t => {
 });
 
 test("should get help", t => {
-  let help: MurasameHelp;
+  let help: any;
 
   new Command("#root")
     .sub<{ key: string }>("hello")
